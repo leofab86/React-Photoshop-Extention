@@ -54,7 +54,6 @@ gulp.task('build:app', () => {
 		.on('error', console.error.bind(console))
 		.pipe(source('app.js'))
 		.pipe(gulp.dest(config.paths.dist + '/scripts'))
-		.pipe(connect.reload());
 });
 
 
@@ -62,13 +61,11 @@ gulp.task('css', function() {
 	gulp.src(config.paths.css)
 		.pipe(concat('bundle.css'))
 		.pipe(gulp.dest(config.paths.dist + '/css'))
-		.pipe(connect.reload());
 });
 
 gulp.task('images', function() {
 	gulp.src(config.paths.images)
 		.pipe(gulp.dest(config.paths.dist + '/images'))
-		.pipe(connect.reload());
 });
 
 

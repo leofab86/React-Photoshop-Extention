@@ -5,7 +5,7 @@ var Greeting = React.createClass({displayName: "Greeting",
 	render: function() {
 		return (
 			React.createElement("div", {className: "jumbotron"}, 
-				React.createElement("p", null, "Hello, Universe")
+				React.createElement("p", null, "Hello, Universe Poop")
 			)
 		);
 	}
