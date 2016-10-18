@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ExtensionManifest Version="6.0" ExtensionBundleId="React" ExtensionBundleVersion="3.1.23"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Author>
+		<![CDATA[Leo Fabrikant]]>
+	</Author>	<Contact mailto="leofab86@gmail.com"/>	<Legal>
+		<![CDATA[Poop.]]>
+	</Legal>	<Abstract>
+		<![CDATA[poop?]]>
+	</Abstract>	<ExtensionList>
+		<Extension Id="React" Version="1.0" />
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			<Host Name="PHSP" Version="14.0" />
+			<Host Name="IDSN" Version="9.1" />
+			<Host Name="PHXS" Version="14.0" />
+			<Host Name="ILST" Version="17.0" />
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+		    <RequiredRuntime Name="CSXS" Version="6.0" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="React">
+			<DispatchInfo >
+				<Resources>
+                    <MainPath>./dist/index.html</MainPath>
+                    <!-- <ScriptPath>./loadFilesOfJsxFolder.jsx</ScriptPath> -->
+                    <CEFCommandLine>
+                      <Parameter>--enable-nodejs</Parameter>
+                      <Parameter>--mixed-context</Parameter>
+                    </CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>React</Menu>
+					<Geometry>
+						<Size>
+							<Height>610</Height>
+							<Width>244</Width>
+						</Size>
+						<MaxSize>
+							<Height>610</Height>
+							<Width>244</Width>
+						</MaxSize>
+						<MinSize>
+							<Height>610</Height>
+							<Width>244</Width>
+						</MinSize>
+					</Geometry>
+					<Icons>
+						<Icon Type="Normal">./dist/images/specctr_panel_icon.png</Icon>
+						<Icon Type="RollOver">./dist/images/specctr_panel_icon_rollover.png</Icon>
+					</Icons>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>

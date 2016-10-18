@@ -1,0 +1,24 @@
+{
+  "name": "react-extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "gulp": "gulp"
+  },
+  "author": "Leo Fabrikant",
+  "license": "ISC",
+  "devDependencies": {
+    "bootstrap": "*",
+    "browserify": "^13.0.1",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "*",
+    "gulp-eslint": "^3.0.1",
+    "gulp-shell": "^0.5.2",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "reactify": "*",
+    "vinyl-source-stream": "*"
+  }
+}
