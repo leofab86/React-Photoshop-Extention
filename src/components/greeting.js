@@ -4,7 +4,7 @@ var Greeting = React.createClass({
 	render: function() {
 		return (
 			<div className='jumbotron'>
-				<p>Hello, Universe</p>
+				<p>Hello, Universe Poop</p>
 			</div>
 		);
 	}
