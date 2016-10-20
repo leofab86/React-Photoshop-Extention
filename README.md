@@ -10,4 +10,6 @@
 
 6. reload localhost:5050 debugger after any changes to view changes in html panel
 
-7. profit
+7. reload panel in order to update changes to jsx files (just click the icon to close and open it, no need to relaunch Photoshop)
+
+8. profit
