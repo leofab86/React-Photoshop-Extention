@@ -7,7 +7,7 @@ var csInterface = new CSInterface();
 var React = require('react');
 var MainPanel = React.createClass({displayName: "MainPanel",
 
-	addDocument: function() {
+	testScript: function() {
 		csInterface.evalScript("addDocument()");
 	},
 
@@ -15,18 +15,18 @@ var MainPanel = React.createClass({displayName: "MainPanel",
 		csInterface.addEventListener('documentCreated', function(event) {
 			console.log(event.data);
 		});
-		csInterface.evalScript("saveCss()");
+		csInterface.evalScript("iterate()");
 	},
 
 	render: function() {
 		return (
 			React.createElement("div", null, 
 				React.createElement("h1", null, "React Extension"), 
-				React.createElement("button", {onClick: this.addDocument}, "Add Document"), 
+				React.createElement("button", {onClick: this.testScript}, "Test Script"), 
 				React.createElement("p", null, "A Simple script to ensure the panel is working"), 
 				React.createElement("br", null), 
 				React.createElement("button", {onClick: this.saveCss}, "Log CSS"), 
-				React.createElement("p", null, "Highlight a layer, click here and check the debugger console. If it works then we have access to the css! Now I need to export this css to a file and build an html doc containing divs with the same class identifiers as the CSS")
+				React.createElement("p", null, "Debugger console should list css for each layer. So our html panel now has access to this data. Now I need to export this css to a file and build an html doc containing divs with the same class identifiers as the CSS")
 			)
 		);
 	}
