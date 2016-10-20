@@ -16,6 +16,7 @@ var config = {
 			'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
 			'./src/**/*.css'
 		],
+		jsx: './src/**/*.jsx',
 		dist: './dist',
 		mainJs: './src/main.js'
 	}
@@ -63,6 +64,12 @@ gulp.task('css', function() {
 		.pipe(gulp.dest(config.paths.dist + '/css'))
 });
 
+gulp.task('jsx', function() {
+	gulp.src(config.paths.jsx)
+		.pipe(concat('bundle.jsx'))
+		.pipe(gulp.dest(config.paths.dist + '/jsx'))
+});
+
 gulp.task('images', function() {
 	gulp.src(config.paths.images)
 		.pipe(gulp.dest(config.paths.dist + '/images'))
@@ -79,7 +86,8 @@ gulp.task('watch', function () {
 	gulp.watch(config.paths.js, ['build:app', 'lint'])
 	gulp.watch(config.paths.images, ['images'])
 	gulp.watch(config.paths.css, ['css'])
+	gulp.watch(config.paths.jsx, ['jsx'])
 });
 
 
-gulp.task('default', ['build:app', 'css', 'images', 'lint', 'watch']);
+gulp.task('default', ['build:app', 'css', 'jsx', 'images', 'lint', 'watch']);

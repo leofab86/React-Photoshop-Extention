@@ -1,5 +1,8 @@
+
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Greeting = require('./components/greeting.js');
+var MainPanel = require('./components/MainPanel.js');
 
-ReactDOM.render(<Greeting/>, document.getElementById('app'));
+
+ReactDOM.render(<MainPanel/>, document.getElementById('app'));
+
