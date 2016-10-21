@@ -22,7 +22,7 @@ var config = {
 	}
 }
 
-var libraries = ['react', 'react-dom'];
+var libraries = ['react', 'react-dom', 'fs'];
 
 // gulp.task('js', function () {
 // 	browserify(config.paths.mainJs)

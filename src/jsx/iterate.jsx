@@ -4,7 +4,5 @@ function iterate () {
         var layer = activeDocument.layers[i];
         activeDocument.activeLayer = layer;
         saveCss();
-        alert(layer.name + ' css should show in the debugger console');
-
     }
 };
