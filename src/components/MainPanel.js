@@ -2,12 +2,10 @@
 var React = require('react');
 var csInterface = new window.CSInterface();
 
-  
-var htmlTopPath = window.React.SystemPath+'/Adobe/CEP/extensions/React/src/codesnippets/top.html';
-var htmlBotPath = window.React.SystemPath+'/Adobe/CEP/extensions/React/src/codesnippets/bottom.html';
+var htmlTopPath = window.React.ApplicationPath + '/src/codesnippets/top.html';
+var htmlBotPath = window.React.ApplicationPath + '/src/codesnippets/bottom.html';
 var htmltop = window.cep.fs.readFile(htmlTopPath).data;
 var htmlbot = window.cep.fs.readFile(htmlBotPath).data;
-
 
 
 
@@ -25,11 +23,17 @@ var MainPanel = React.createClass({
 		var body = '';
 		var csspath = '';
 		var htmlFinalPath = '';
+		var text = '';
 
 		csInterface.evalScript("exportLayer()");
+		
 		csInterface.addEventListener('exportInfo', function(event){
 			csspath = event.data + '/stylesheet.css';
 			htmlFinalPath = event.data + '/index.html';
+		});
+
+		csInterface.addEventListener('outputText', function(event) {
+			text = event.data;
 		});
 
 		csInterface.addEventListener('outputLayerCSS', function(event) {
@@ -39,9 +43,13 @@ var MainPanel = React.createClass({
 			cssdata = cssdata + '\n' +event.data;
 			window.cep.fs.writeFile(csspath, cssdata);
 
-			var classId = event.data.split(/\.| /);
+			var classId = event.data.match(/\.(.*) /g);
 
-			body = body + "\t\t<div class='" + classId[1] + "'></div>\n";
+			for (var x = 0; x < classId.length; x++) {
+				body = body + "\t\t<div class='" + classId[x].slice(1, -1) + "'>" + text + "</div>\n";	
+			}
+
+			text = '';
 
 			var htmlFinal = htmltop + body + htmlbot;
 
@@ -49,7 +57,7 @@ var MainPanel = React.createClass({
 
 		});
 
-		csInterface.evalScript("iterate()");
+		csInterface.evalScript("iterate(activeDocument)");
 		
 	},
 
