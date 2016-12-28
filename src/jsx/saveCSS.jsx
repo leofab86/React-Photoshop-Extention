@@ -1,6 +1,5 @@
 function saveCss () {
 
-	
 
 	// Copyright 2012 Adobe Systems Incorporated.  All Rights reserved.
 
@@ -1196,6 +1195,7 @@ function saveCss () {
 	// calling this function.  This really slows down the script, unfortunately.
 	cssToClip.extractShapeGeometry = function()
 	{
+		alert('extracting Shape Geometry');
 		// We accept a shape as conforming if the coords are within "magnitude"
 		// of the overall size.
 		function near(a,b, magnitude)
@@ -1221,8 +1221,10 @@ function saveCss () {
 		// See problem 1, http://www.graphics.stanford.edu/courses/cs248-98-fall/Final/q1.html
 		const kEllipseDist = 4*(Math.sqrt(2) - 1)/3;
 
-		if (app.activeDocument.pathItems.length == 0)
+		if (app.activeDocument.pathItems.length == 0) {
+			alert('no path');
 			return null;	// No path
+		};
 		
 		// Grab the path name from the layer name (it's auto-generated)
 		var i, pathName = localize("$$$/ShapeLayerPathName=^0 Shape Path");
@@ -1250,6 +1252,11 @@ function saveCss () {
 				}
 				// Return the X,Y radius
 				return [pts[1].anchor[0] - pts[0].anchor[0], pts[1].anchor[1] - pts[0].anchor[1], "ellipse"];
+				
+			}
+			else if (subPath.closed && (subPath.pathPoints.length == 6))
+			{
+				alert('UH OH cant get border radius');
 			}
 			else if (subPath.closed && (subPath.pathPoints.length == 8))	// RoundRect?
 			{
@@ -1273,17 +1280,21 @@ function saveCss () {
 					if (io == 0) 
 					{
 						if( ! near( arm( pts[i], hv, io ) - pts[i].anchor[hv], 
-									   (pts[prev(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) )
-						return null;
+									   (pts[prev(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) ) {
+							return null;
+						}
+						
 					}
 					else
 					{
 						if( ! near( arm( pts[i], hv, io ) - pts[i].anchor[hv], 
-									   (pts[next(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) )
-						return null;
+									   (pts[next(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) ) {
+							return null;
+						}
 					}
 				}
 				return [pts[2].anchor[0] - pts[1].anchor[0], pts[2].anchor[1] - pts[1].anchor[1], "round rect"];
+
 			}
 		}
 	}
@@ -1484,6 +1495,7 @@ function saveCss () {
 	// Only called for shape (vector) layers.
 	cssToClip.getShapeLayerCSS = function( boundsInfo )
 	{
+		alert('getting Shape Layer CSS');
 		// If we have AGM stroke style info, generate that.
 		var agmDesc = this.getLayerAttr( "AGMStrokeStyleInfo" );
 		boundsInfo.borderWidth = 0;
@@ -1533,6 +1545,7 @@ function saveCss () {
 		// We assume path coordinates are in pixels, they're not stored as UnitValues in the DOM.
 		if (shapeGeom)
 		{
+			alert(shapeGeom);
 			// In CSS, the borderRadius needs to be added to the borderWidth, otherwise ovals
 			// turn into rounded rects.
 			if (shapeGeom[2] == "ellipse")
@@ -1560,6 +1573,10 @@ function saveCss () {
 			}
 			else
 			{
+				// var name = this.getLayerAttr( "name" );
+				// this.addText( 'background-image: url("'+name+'.png");');
+
+
 				var fillOpacity = this.getLayerAttr("fillOpacity") / 255.0;
 				if (fillOpacity < 1.0)
 					this.addRGBAColor( "background-color", fillOpacity, this.getLayerAttr( "adjustment" ));
@@ -1712,18 +1729,21 @@ function saveCss () {
 		else
 		{
 			// If the layer has a suffix, assume Generator-style naming conventions
-			var docSuffix = app.activeDocument.name.search(/([.]psd)$/i);
-			var docFolder = (docSuffix < 0) ? app.activeDocument.name
-													  : app.activeDocument.name.slice(0, docSuffix);
-			docFolder += "-assets/";	// The "-assets" is not localized.
-			
-			// Weed out any Generator parameters, if present.
-			var m = name.match(/(?:[\dx%? ])*([^.+,\n\r]+)([.]\w+)+$/);
-			if (m) {
-				name = m[1]+m[2];
-			}
 
-			this.addText( 'background-image: url("' + docFolder + name + '");');
+			this.addStyleLine( 'background-image: url("$name$.png");');
+
+			// var docSuffix = app.activeDocument.name.search(/([.]psd)$/i);
+			// var docFolder = (docSuffix < 0) ? app.activeDocument.name
+			// 										  : app.activeDocument.name.slice(0, docSuffix);
+			// docFolder += "-assets/";	// The "-assets" is not localized.
+			
+			// // Weed out any Generator parameters, if present.
+			// var m = name.match(/(?:[\dx%? ])*([^.+,\n\r]+)([.]\w+)+$/);
+			// if (m) {
+			// 	name = m[1]+m[2];
+			// }
+
+			// this.addText( 'background-image: url("' + docFolder + name + '");');
 		}
 		var fillOpacity = this.getLayerAttr("fillOpacity")/255.0;
 		this.addOpacity( this.getLayerAttr("opacity") * fillOpacity );

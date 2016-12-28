@@ -5,3 +5,10 @@ window.React = {};
 window.React.ApplicationPath = csInterface.getSystemPath(SystemPath.APPLICATION);
 
 console.log(window);
+
+function loadJSX (fileName) {
+	var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/src/jsx/";
+	csInterface.evalScript('$.evalFile("' + extensionRoot + fileName + '")');
+};
+
+loadJSX('json2.jsx');

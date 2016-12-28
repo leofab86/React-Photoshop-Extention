@@ -1,8 +1,28 @@
 function addDocument() {
-  app.documents.add();
+	alert('poop');
+	app.documents.add();
+	alert('peepee');
+
+	try {
+	    var xLib = new ExternalObject("lib:\PlugPlugExternalObject");
+	} catch (e) {
+	    alert(e);
+	}
+	 
+	if (xLib) {
+	    var eventObj = new CSXSEvent();
+		eventObj.type = "test";
+		eventObj.data = 'poop';
+	    eventObj.dispatch();
+	    alert('kaka');
+	}
+
+
+	
+
 };
 
-function exportLayer () {
+function destination () {
 	// Copyright 2007.  Adobe Systems, Incorporated.  All rights reserved.
 // This script will export each layer in the document to a separate file.
 // Written by Naoki Hada
@@ -141,7 +161,8 @@ var cancelButtonID = 2;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-main();
+
+return main();
 
 
 
@@ -186,63 +207,21 @@ function main() {
     	if (cancelButtonID == settingDialog(exportInfo)) {
 	    	return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
 	    }
-	}
+	  }
 
     try {
-      var exportDoc = app.activeDocument;
-      var docName = exportDoc.name;
-      var layerCount = exportDoc.layers.length;
-      var layerSetsCount = exportDoc.layerSets.length;
-
-        if ((layerCount <= 1)&&(layerSetsCount <= 0)) {
-            if ( DialogModes.NO != app.playbackDisplayDialogs ) {
-                alert( strAlertNeedMultipleLayers );
-	    	return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
-            }
-        } else {
-    
-            var rememberMaximize;
-            var needMaximize = exportInfo.psdMaxComp ? QueryStateType.ALWAYS : QueryStateType.NEVER;
-            if ( exportInfo.fileType == psdIndex && app.preferences.maximizeCompatibility != needMaximize ) {
-                rememberMaximize = app.preferences.maximizeCompatibility;
-                app.preferences.maximizeCompatibility = needMaximize;
-            }
-            
-          app.activeDocument = exportDoc;
-            var duppedDocument = app.activeDocument.duplicate();
-            duppedDocument.activeLayer = duppedDocument.layers[duppedDocument.layers.length-1]; // for removing
-            setInvisibleAllArtLayers(duppedDocument);
-          exportChildren(duppedDocument, exportDoc, exportInfo, duppedDocument, exportInfo.fileNamePrefix);
-            duppedDocument.close( SaveOptions.DONOTSAVECHANGES );
-			  
-			var d = objectToDescriptor(exportInfo, strMessage, preProcessExportInfo);
-            app.putCustomOptions("4d633fbb-ed90-480d-8e03-cccb16131a34", d);
-
-			var dd = objectToDescriptor(exportInfo, strMessage, preProcessExportInfo);
-            app.playbackParameters = dd;
-
-            if ( rememberMaximize != undefined ) {
-                app.preferences.maximizeCompatibility = rememberMaximize;
-            }
-            
-            if ( DialogModes.ALL == app.playbackDisplayDialogs ) {
-                alert(strTitle + strAlertWasSuccessful);
-            }
-
-            app.playbackDisplayDialogs = DialogModes.ALL;
-
-        }
+        var xLib = new ExternalObject("lib:\PlugPlugExternalObject");
     } catch (e) {
-        if ( DialogModes.NO != app.playbackDisplayDialogs ) {
-            alert(e);
-        }
-    	return 'cancel'; // quit, returning 'cancel' (dont localize) makes the actions palette not record our script
+        alert(e);
     }
 
-    var eventObj = new CSXSEvent(); 
-    eventObj.type = "exportInfo";
-    eventObj.data = exportInfo.destination;
-    eventObj.dispatch();
+    globalDestinationVar = exportInfo.destination;
+
+    alert('destination function completed. Returning: ' + exportInfo.destination);
+    return exportInfo.destination;
+
+
+    
 }
 
 
@@ -751,215 +730,6 @@ function initFileNameDestination(exportInfo) {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Function: saveFile
-// Usage: the worker routine, take our params and save the file accordingly
-// Input: reference to the document, the name of the output file, 
-//        export info object containing more information
-// Return: <none>, a file on disk
-///////////////////////////////////////////////////////////////////////////////
-function saveFile( docRef, fileNameBody, exportInfo) {
-    var isS4W = false,
-        fileExtension;
-    switch (exportInfo.fileType) {
-        case jpegIndex:
-            fileExtension = "jpg";
-	        docRef.bitsPerChannel = BitsPerChannelType.EIGHT;
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".jpg");
-            jpgSaveOptions = new JPEGSaveOptions();
-            jpgSaveOptions.embedColorProfile = exportInfo.icc;
-            jpgSaveOptions.quality = exportInfo.jpegQuality;
-            docRef.saveAs(saveFile, jpgSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case psdIndex:
-            fileExtension = "psd";
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".psd");
-            psdSaveOptions = new PhotoshopSaveOptions();
-            psdSaveOptions.embedColorProfile = exportInfo.icc;
-            psdSaveOptions.maximizeCompatibility = exportInfo.psdMaxComp;
-            docRef.saveAs(saveFile, psdSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case tiffIndex:
-            fileExtension = "tiff";
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".tif");
-            tiffSaveOptions = new TiffSaveOptions();
-            tiffSaveOptions.embedColorProfile = exportInfo.icc;
-            tiffSaveOptions.imageCompression = exportInfo.tiffCompression;
-            if (TIFFEncoding.JPEG == exportInfo.tiffCompression) {
-				tiffSaveOptions.jpegQuality = exportInfo.tiffJpegQuality;
-			}
-            docRef.saveAs(saveFile, tiffSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case pdfIndex:
-            fileExtension = "pdf";
-	    	if (docRef.bitsPerChannel == BitsPerChannelType.THIRTYTWO)
-				docRef.bitsPerChannel = BitsPerChannelType.SIXTEEN;
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".pdf");
-            pdfSaveOptions = new PDFSaveOptions();
-            pdfSaveOptions.embedColorProfile = exportInfo.icc;
-            pdfSaveOptions.encoding = exportInfo.pdfEncoding;
-            if (PDFEncoding.JPEG == exportInfo.pdfEncoding) {
-				pdfSaveOptions.jpegQuality = exportInfo.pdfJpegQuality;
-			}
-            docRef.saveAs(saveFile, pdfSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case targaIndex:
-             fileExtension = "tga";
-	    	docRef.bitsPerChannel = BitsPerChannelType.EIGHT;
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".tga");
-            targaSaveOptions = new TargaSaveOptions();
-            targaSaveOptions.resolution = exportInfo.targaDepth;
-            docRef.saveAs(saveFile, targaSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case bmpIndex:
-            fileExtension = "bmp";
-	    	docRef.bitsPerChannel = BitsPerChannelType.EIGHT;
-            var saveFile = new File(exportInfo.destination + "/" + fileNameBody + ".bmp");
-            bmpSaveOptions = new BMPSaveOptions();
-            bmpSaveOptions.depth = exportInfo.bmpDepth;
-            docRef.saveAs(saveFile, bmpSaveOptions, true, Extension.LOWERCASE);
-            break;
-        case png8Index:
-              fileExtension "png8";
-              isS4W = true;
-			var id5 = charIDToTypeID( "Expr" );
-			var desc3 = new ActionDescriptor();
-			var id6 = charIDToTypeID( "Usng" );
-			var desc4 = new ActionDescriptor();
-			var id7 = charIDToTypeID( "Op  " );
-			var id8 = charIDToTypeID( "SWOp" );
-			var id9 = charIDToTypeID( "OpSa" );
-			desc4.putEnumerated( id7, id8, id9 );
-			var id10 = charIDToTypeID( "Fmt " );
-			var id11 = charIDToTypeID( "IRFm" );
-			var id12 = charIDToTypeID( "PNG8" );
-			desc4.putEnumerated( id10, id11, id12 );
-			var id13 = charIDToTypeID( "Intr" ); //Interlaced
-			desc4.putBoolean( id13, exportInfo.png8Interlaced );
-			var id14 = charIDToTypeID( "RedA" );
-			var id15 = charIDToTypeID( "IRRd" );
-			var id16 = charIDToTypeID( "Prcp" ); //Algorithm
-			desc4.putEnumerated( id14, id15, id16 );
-			var id17 = charIDToTypeID( "RChT" );
-			desc4.putBoolean( id17, false );
-			var id18 = charIDToTypeID( "RChV" );
-			desc4.putBoolean( id18, false );
-			var id19 = charIDToTypeID( "AuRd" );
-			desc4.putBoolean( id19, false );
-			var id20 = charIDToTypeID( "NCol" ); //NO. Of Colors
-			desc4.putInteger( id20, 256 );
-			var id21 = charIDToTypeID( "Dthr" ); //Dither
-			var id22 = charIDToTypeID( "IRDt" );
-			var id23 = charIDToTypeID( "Dfsn" ); //Dither type
-			desc4.putEnumerated( id21, id22, id23 );
-			var id24 = charIDToTypeID( "DthA" );
-			desc4.putInteger( id24, 100 );
-			var id25 = charIDToTypeID( "DChS" );
-			desc4.putInteger( id25, 0 );
-			var id26 = charIDToTypeID( "DCUI" );
-			desc4.putInteger( id26, 0 );
-			var id27 = charIDToTypeID( "DChT" );
-			desc4.putBoolean( id27, false );
-			var id28 = charIDToTypeID( "DChV" );
-			desc4.putBoolean( id28, false );
-			var id29 = charIDToTypeID( "WebS" );
-			desc4.putInteger( id29, 0 );
-			var id30 = charIDToTypeID( "TDth" ); //transparency dither
-			var id31 = charIDToTypeID( "IRDt" );
-			var id32 = charIDToTypeID( "None" );
-			desc4.putEnumerated( id30, id31, id32 );
-			var id33 = charIDToTypeID( "TDtA" );
-			desc4.putInteger( id33, 100 );
-			var id34 = charIDToTypeID( "Trns" ); //Transparency
-			desc4.putBoolean( id34, exportInfo.png8Transparency );
-			var id35 = charIDToTypeID( "Mtt " );
-			desc4.putBoolean( id35, true );		 //matte
-			var id36 = charIDToTypeID( "MttR" ); //matte color
-			desc4.putInteger( id36, 255 );
-			var id37 = charIDToTypeID( "MttG" );
-			desc4.putInteger( id37, 255 );
-			var id38 = charIDToTypeID( "MttB" );
-			desc4.putInteger( id38, 255 );
-			var id39 = charIDToTypeID( "SHTM" );
-			desc4.putBoolean( id39, false );
-			var id40 = charIDToTypeID( "SImg" );
-			desc4.putBoolean( id40, true );
-			var id41 = charIDToTypeID( "SSSO" );
-			desc4.putBoolean( id41, false );
-			var id42 = charIDToTypeID( "SSLt" );
-			var list1 = new ActionList();
-			desc4.putList( id42, list1 );
-			var id43 = charIDToTypeID( "DIDr" );
-			desc4.putBoolean( id43, false );
-			var id44 = charIDToTypeID( "In  " );
-			desc4.putPath( id44, new File( exportInfo.destination + "/" + fileNameBody + ".png") );
-			var id45 = stringIDToTypeID( "SaveForWeb" );
-			desc3.putObject( id6, id45, desc4 );
-			executeAction( id5, desc3, DialogModes.NO );
-            break;
-        case png24Index:
-            fileExtension "png24";
-            if(exportInfo.png24Transparency) {
-                fileExtension = "png32"
-            }
-             isS4W = true;
-			var id6 = charIDToTypeID( "Expr" );
-			var desc3 = new ActionDescriptor();
-			var id7 = charIDToTypeID( "Usng" );
-			var desc4 = new ActionDescriptor();
-			var id8 = charIDToTypeID( "Op  " );
-			var id9 = charIDToTypeID( "SWOp" );
-			var id10 = charIDToTypeID( "OpSa" );
-	        desc4.putEnumerated( id8, id9, id10 );
-			var id11 = charIDToTypeID( "Fmt " );
-			var id12 = charIDToTypeID( "IRFm" );
-			var id13 = charIDToTypeID( "PN24" );
-			desc4.putEnumerated( id11, id12, id13 );
-			var id14 = charIDToTypeID( "Intr" );
-			desc4.putBoolean( id14, exportInfo.png24Interlaced );
-			var id15 = charIDToTypeID( "Trns" );
-			desc4.putBoolean( id15, exportInfo.png24Transparency );
-			var id16 = charIDToTypeID( "Mtt " );
-			desc4.putBoolean( id16, true );
-			var id17 = charIDToTypeID( "MttR" );
-			desc4.putInteger( id17, 255 );
-			var id18 = charIDToTypeID( "MttG" );
-			desc4.putInteger( id18, 255 );
-			var id19 = charIDToTypeID( "MttB" );
-			desc4.putInteger( id19, 255 );
-			var id20 = charIDToTypeID( "SHTM" );
-			desc4.putBoolean( id20, false );
-			var id21 = charIDToTypeID( "SImg" );
-			desc4.putBoolean( id21, true );
-			var id22 = charIDToTypeID( "SSSO" );
-			desc4.putBoolean( id22, false );
-			var id23 = charIDToTypeID( "SSLt" );
-			var list1 = new ActionList();
-			desc4.putList( id23, list1 );
-			var id24 = charIDToTypeID( "DIDr" );
-			desc4.putBoolean( id24, false );
-			var id25 = charIDToTypeID( "In  " );
-			desc4.putPath( id25, new File( exportInfo.destination + "/" + fileNameBody + ".png") );
-            var id26 = stringIDToTypeID( "SaveForWeb" );
-			desc3.putObject( id7, id26, desc4 );
-			executeAction( id6, desc3, DialogModes.NO );
-            break;
-        default:
-            if ( DialogModes.NO != app.playbackDisplayDialogs ) {
-                alert(strUnexpectedError);
-            }
-            break;
-    }
-    if(isS4W) 
-    {
-        logToHeadLights("Save for web - Layer to file Script");
-    } else {
-        logToHeadLights("Save As - Layer to file Script");
-    }
-    logToHeadLights("Layer To File " + fileExtension);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
 // Function: zeroSuppress
 // Usage: return a string padded to digit(s)
 // Input: num to convert, digit count needed
@@ -1047,75 +817,7 @@ function removeAllInvisible(docRef) {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
-// Function: exportChildren
-// Usage: find all the children in this document to save
-// Input: duplicate document, original document, export info,
-//        reference to document, starting file name
-// Return: <none>, documents are saved accordingly
-///////////////////////////////////////////////////////////////////////////////
-function exportChildren(dupObj, orgObj, exportInfo, dupDocRef, fileNamePrefix) {
-    for( var i = 0; i < dupObj.artLayers.length; i++) {
-        if (exportInfo.visibleOnly) { // visible layer only
-            if (!orgObj.artLayers[i].visible) {
-				continue;
-			}
-        }
-        dupObj.artLayers[i].visible = true;
 
-        var layerName = dupObj.artLayers[i].name;  // store layer name before change doc
-        var duppedDocumentTmp = dupDocRef.duplicate();
-        if ((psdIndex == exportInfo.fileType)||(png24Index == exportInfo.fileType)||(png8Index == exportInfo.fileType)) { // PSD: Keep transparency
-            removeAllInvisible(duppedDocumentTmp);
-
-            //PNGFileOptions
-  		    if ((png24Index == exportInfo.fileType)||(png8Index == exportInfo.fileType)) { // PNGFileOptions
-				if ((exportInfo.png8Trim == true)&&(png8Index == exportInfo.fileType)) { //transparancy checked?
-					
-					if (activeDocument.activeLayer.isBackgroundLayer == false) { //is it anything but a background layer?
-					
-						app.activeDocument.trim(TrimType.TRANSPARENT);
-						
-					}
-					
-				}
-				if ((exportInfo.png24Trim == true)&&(png24Index == exportInfo.fileType)) { //transparancy checked?
-					
-					if (activeDocument.activeLayer.isBackgroundLayer == false) { //is it anything but a background layer?
-					
-						app.activeDocument.trim(TrimType.TRANSPARENT);
-						
-					}
-					
-				}
-            }
-        } else { // just flatten
-            duppedDocumentTmp.flatten();
-        }
-        var fileNameBody = layerName;
-        // fileNameBody += "_" + zeroSuppress(i, 4);
-        // fileNameBody += "_" + layerName;
-        fileNameBody = fileNameBody.replace(/[:\/\\*\?\"\<\>\|]/g, "_");  // '/\:*?"<>|' -> '_'
-        //fileNameBody = fileNameBody.replace(/ /g,"_");
-        if (fileNameBody.length > 120) {
-			fileNameBody = fileNameBody.substring(0,120);
-		}
-        saveFile(duppedDocumentTmp, fileNameBody, exportInfo);
-        duppedDocumentTmp.close(SaveOptions.DONOTSAVECHANGES);
-
-        dupObj.artLayers[i].visible = false;
-    }
-    for( var i = 0; i < dupObj.layerSets.length; i++) {
-        if (exportInfo.visibleOnly) { // visible layer only
-            if (!orgObj.layerSets[i].visible) {
-				continue;
-			}
-        }
-        var fileNameBody = fileNamePrefix;
-        fileNameBody += "_" + zeroSuppress(i, 4) + "s";
-        exportChildren(dupObj.layerSets[i], orgObj.layerSets[i], exportInfo, dupDocRef, fileNameBody);  // recursive call
-    }
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1319,7 +1021,6 @@ function logToHeadLights(eventRecord)
     executeAction(headlightsActionID, desc, DialogModes.NO);
 }
 
-// End Export Layers To Files.jsx
 };
 // function iterate () {
 // 	var len = activeDocument.layers.length;
@@ -1332,27 +1033,638 @@ function logToHeadLights(eventRecord)
 
 
 function iterate (lSet) {
-	for(var i=0;i<lSet.layers.length; i++){
-		activeDocument.activeLayer = lSet.layers[i];
-		if(activeDocument.activeLayer.typename == 'LayerSet'){
-			if(activeDocument.activeLayer.layers.length>0){
-				iterate(activeDocument.activeLayer);
-			}
-		}
-		else {
-			if (activeDocument.activeLayer.kind == LayerKind.TEXT) {
-				var eventObj1 = new CSXSEvent(); 
-			    eventObj1.type = "outputText";
-			    eventObj1.data = activeDocument.activeLayer.textItem.contents;
-			    eventObj1.dispatch();
-			};
-			saveCss();
-		}
-	}
-};
-function saveCss () {
+
+
+	alert('Iterate Script reads global destination: ' + globalDestinationVar);
+	var destination = globalDestinationVar;
 
 	
+	var docCopy = lSet.duplicate();
+	var nameArray = [];
+	var dupNameObj = {};
+	var layerName;
+
+	alert('iterate start');
+
+
+	(function recurse (lSet) {
+		for(var i=lSet.layers.length-1;i>-1; i--){
+
+			activeDocument.activeLayer = lSet.layers[i];
+			layerName = activeDocument.activeLayer.name;
+
+			//Check for duplicates and change name
+			if (!dupNameObj[layerName]) {
+				dupNameObj[layerName] = 1;
+			}
+			// else if (dupNameObj[layerName] === 1) {
+			// 	activeDocument.activeLayer.name = layerName + '-1';
+			// 	dupNameObj[layerName] = 2;
+
+			// } 
+			else if (dupNameObj[layerName] > 0) {
+				activeDocument.activeLayer.name = layerName + '-' + dupNameObj[layerName];
+				dupNameObj[layerName] = dupNameObj[layerName] + 1;
+			};
+
+
+			layerName = activeDocument.activeLayer.name;
+			
+			if(activeDocument.activeLayer.typename == 'LayerSet'){
+				
+				if(layerName.indexOf('.png') !== -1) {
+					alert('exporting layerSET '+layerName+ ' to PNG');
+
+					smartirize();
+
+					nameArray.push(layerName);
+					saveCss();
+					
+				} else if (activeDocument.activeLayer.layers.length>0) {
+					recurse(activeDocument.activeLayer);
+				};
+				
+			}
+			else {
+
+				if (layerName.indexOf('.png') !== -1) {
+					alert('exporting layer '+layerName+ ' to PNG');
+					smartirize();
+					nameArray.push(layerName);
+
+
+				} else if (activeDocument.activeLayer.kind == LayerKind.TEXT) {
+					var eventObj1 = new CSXSEvent(); 
+					eventObj1.type = "outputText";
+					eventObj1.data = activeDocument.activeLayer.textItem.contents;
+					eventObj1.dispatch();
+					
+				} else if (activeDocument.activeLayer.kind == LayerKind.NORMAL) {
+					nameArray.push(layerName);
+
+				} else if (activeDocument.activeLayer.kind == LayerKind.SMARTOBJECT) {
+					rasterize();
+					nameArray.push(layerName);
+				};
+				
+				saveCss();				
+			}
+		}
+	})(docCopy);
+
+	alert('iterate complete');
+
+	exportLayer(destination, 'arrayOfLayers', JSON.stringify(nameArray));
+	
+};
+
+
+function exportLayer (destination, selection, nameArray) {
+	var generatorDesc = new ActionDescriptor();
+	generatorDesc.putString (app.stringIDToTypeID ("name"), "reactPkgName");
+	// Example of additional parameter passed to the node.js code:
+	generatorDesc.putString (app.stringIDToTypeID ("selection"), selection );
+	generatorDesc.putString (app.stringIDToTypeID ("destination"), destination );
+	generatorDesc.putString (app.stringIDToTypeID ("nameArray"), nameArray );
+	var returnDesc = executeAction (app.stringIDToTypeID ("generateAssets"), generatorDesc, DialogModes.NO);
+};
+
+function smartirize (){
+	//Convert to smart object
+	var idnewPlacedLayer = stringIDToTypeID( "newPlacedLayer" );
+	executeAction( idnewPlacedLayer, undefined, DialogModes.NO );
+
+	rasterize();					
+};
+
+function rasterize (){
+	var idrasterizeLayer = stringIDToTypeID( "rasterizeLayer" );
+	var desc5 = new ActionDescriptor();
+	var idnull = charIDToTypeID( "null" );
+		var ref4 = new ActionReference();
+		var idLyr = charIDToTypeID( "Lyr " );
+		var idOrdn = charIDToTypeID( "Ordn" );
+		var idTrgt = charIDToTypeID( "Trgt" );
+		ref4.putEnumerated( idLyr, idOrdn, idTrgt );
+	desc5.putReference( idnull, ref4 );
+	var idWhat = charIDToTypeID( "What" );
+	var idrasterizeItem = stringIDToTypeID( "rasterizeItem" );
+	var idlayerStyle = stringIDToTypeID( "layerStyle" );
+	desc5.putEnumerated( idWhat, idrasterizeItem, idlayerStyle );
+	executeAction( idrasterizeLayer, desc5, DialogModes.NO );					
+};
+
+
+
+
+//  json2.js
+//  2016-10-28
+//  Public Domain.
+//  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+//  See http://www.JSON.org/js.html
+//  This code should be minified before deployment.
+//  See http://javascript.crockford.com/jsmin.html
+
+//  USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+//  NOT CONTROL.
+
+//  This file creates a global JSON object containing two methods: stringify
+//  and parse. This file provides the ES5 JSON capability to ES3 systems.
+//  If a project might run on IE8 or earlier, then this file should be included.
+//  This file does nothing on ES5 systems.
+
+//      JSON.stringify(value, replacer, space)
+//          value       any JavaScript value, usually an object or array.
+//          replacer    an optional parameter that determines how object
+//                      values are stringified for objects. It can be a
+//                      function or an array of strings.
+//          space       an optional parameter that specifies the indentation
+//                      of nested structures. If it is omitted, the text will
+//                      be packed without extra whitespace. If it is a number,
+//                      it will specify the number of spaces to indent at each
+//                      level. If it is a string (such as "\t" or "&nbsp;"),
+//                      it contains the characters used to indent at each level.
+//          This method produces a JSON text from a JavaScript value.
+//          When an object value is found, if the object contains a toJSON
+//          method, its toJSON method will be called and the result will be
+//          stringified. A toJSON method does not serialize: it returns the
+//          value represented by the name/value pair that should be serialized,
+//          or undefined if nothing should be serialized. The toJSON method
+//          will be passed the key associated with the value, and this will be
+//          bound to the value.
+
+//          For example, this would serialize Dates as ISO strings.
+
+//              Date.prototype.toJSON = function (key) {
+//                  function f(n) {
+//                      // Format integers to have at least two digits.
+//                      return (n < 10)
+//                          ? "0" + n
+//                          : n;
+//                  }
+//                  return this.getUTCFullYear()   + "-" +
+//                       f(this.getUTCMonth() + 1) + "-" +
+//                       f(this.getUTCDate())      + "T" +
+//                       f(this.getUTCHours())     + ":" +
+//                       f(this.getUTCMinutes())   + ":" +
+//                       f(this.getUTCSeconds())   + "Z";
+//              };
+
+//          You can provide an optional replacer method. It will be passed the
+//          key and value of each member, with this bound to the containing
+//          object. The value that is returned from your method will be
+//          serialized. If your method returns undefined, then the member will
+//          be excluded from the serialization.
+
+//          If the replacer parameter is an array of strings, then it will be
+//          used to select the members to be serialized. It filters the results
+//          such that only members with keys listed in the replacer array are
+//          stringified.
+
+//          Values that do not have JSON representations, such as undefined or
+//          functions, will not be serialized. Such values in objects will be
+//          dropped; in arrays they will be replaced with null. You can use
+//          a replacer function to replace those with JSON values.
+
+//          JSON.stringify(undefined) returns undefined.
+
+//          The optional space parameter produces a stringification of the
+//          value that is filled with line breaks and indentation to make it
+//          easier to read.
+
+//          If the space parameter is a non-empty string, then that string will
+//          be used for indentation. If the space parameter is a number, then
+//          the indentation will be that many spaces.
+
+//          Example:
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}]);
+//          // text is '["e",{"pluribus":"unum"}]'
+
+//          text = JSON.stringify(["e", {pluribus: "unum"}], null, "\t");
+//          // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+//          text = JSON.stringify([new Date()], function (key, value) {
+//              return this[key] instanceof Date
+//                  ? "Date(" + this[key] + ")"
+//                  : value;
+//          });
+//          // text is '["Date(---current time---)"]'
+
+//      JSON.parse(text, reviver)
+//          This method parses a JSON text to produce an object or array.
+//          It can throw a SyntaxError exception.
+
+//          The optional reviver parameter is a function that can filter and
+//          transform the results. It receives each of the keys and values,
+//          and its return value is used instead of the original value.
+//          If it returns what it received, then the structure is not modified.
+//          If it returns undefined then the member is deleted.
+
+//          Example:
+
+//          // Parse the text. Values that look like ISO date strings will
+//          // be converted to Date objects.
+
+//          myData = JSON.parse(text, function (key, value) {
+//              var a;
+//              if (typeof value === "string") {
+//                  a =
+//   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+//                  if (a) {
+//                      return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+//                          +a[5], +a[6]));
+//                  }
+//              }
+//              return value;
+//          });
+
+//          myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+//              var d;
+//              if (typeof value === "string" &&
+//                      value.slice(0, 5) === "Date(" &&
+//                      value.slice(-1) === ")") {
+//                  d = new Date(value.slice(5, -1));
+//                  if (d) {
+//                      return d;
+//                  }
+//              }
+//              return value;
+//          });
+
+//  This is a reference implementation. You are free to copy, modify, or
+//  redistribute.
+
+/*jslint
+    eval, for, this
+*/
+
+/*property
+    JSON, apply, call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+// Create a JSON object only if one does not already exist. We create the
+// methods in a closure to avoid creating global variables.
+
+if (typeof JSON !== "object") {
+    JSON = {};
+}
+
+(function () {
+    "use strict";
+
+    var rx_one = /^[\],:{}\s]*$/;
+    var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+    var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+    var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+    var rx_escapable = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+    var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+    function f(n) {
+        // Format integers to have at least two digits.
+        return n < 10
+            ? "0" + n
+            : n;
+    }
+
+    function this_value() {
+        return this.valueOf();
+    }
+
+    if (typeof Date.prototype.toJSON !== "function") {
+
+        Date.prototype.toJSON = function () {
+
+            return isFinite(this.valueOf())
+                ? this.getUTCFullYear() + "-" +
+                        f(this.getUTCMonth() + 1) + "-" +
+                        f(this.getUTCDate()) + "T" +
+                        f(this.getUTCHours()) + ":" +
+                        f(this.getUTCMinutes()) + ":" +
+                        f(this.getUTCSeconds()) + "Z"
+                : null;
+        };
+
+        Boolean.prototype.toJSON = this_value;
+        Number.prototype.toJSON = this_value;
+        String.prototype.toJSON = this_value;
+    }
+
+    var gap;
+    var indent;
+    var meta;
+    var rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        rx_escapable.lastIndex = 0;
+        return rx_escapable.test(string)
+            ? "\"" + string.replace(rx_escapable, function (a) {
+                var c = meta[a];
+                return typeof c === "string"
+                    ? c
+                    : "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+            }) + "\""
+            : "\"" + string + "\"";
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i;          // The loop counter.
+        var k;          // The member key.
+        var v;          // The member value.
+        var length;
+        var mind = gap;
+        var partial;
+        var value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === "object" &&
+                typeof value.toJSON === "function") {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === "function") {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case "string":
+            return quote(value);
+
+        case "number":
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value)
+                ? String(value)
+                : "null";
+
+        case "boolean":
+        case "null":
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce "null". The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is "object", we might be dealing with an object or an array or
+// null.
+
+        case "object":
+
+// Due to a specification blunder in ECMAScript, typeof null is "object",
+// so watch out for that case.
+
+            if (!value) {
+                return "null";
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === "[object Array]") {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || "null";
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? "[]"
+                    : gap
+                        ? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+                        : "[" + partial.join(",") + "]";
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === "object") {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === "string") {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (
+                                gap
+                                    ? ": "
+                                    : ":"
+                            ) + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? "{}"
+                : gap
+                    ? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+                    : "{" + partial.join(",") + "}";
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof JSON.stringify !== "function") {
+        meta = {    // table of character substitutions
+            "\b": "\\b",
+            "\t": "\\t",
+            "\n": "\\n",
+            "\f": "\\f",
+            "\r": "\\r",
+            "\"": "\\\"",
+            "\\": "\\\\"
+        };
+        JSON.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = "";
+            indent = "";
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === "number") {
+                for (i = 0; i < space; i += 1) {
+                    indent += " ";
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === "string") {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== "function" &&
+                    (typeof replacer !== "object" ||
+                    typeof replacer.length !== "number")) {
+                throw new Error("JSON.stringify");
+            }
+
+// Make a fake root object containing our value under the key of "".
+// Return the result of stringifying the value.
+
+            return str("", {"": value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof JSON.parse !== "function") {
+        JSON.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k;
+                var v;
+                var value = holder[key];
+                if (value && typeof value === "object") {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            rx_dangerous.lastIndex = 0;
+            if (rx_dangerous.test(text)) {
+                text = text.replace(rx_dangerous, function (a) {
+                    return "\\u" +
+                            ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with "()" and "new"
+// because they can cause invocation, and "=" because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with "@" (a non-JSON character). Second, we
+// replace all simple value tokens with "]" characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or "]" or
+// "," or ":" or "{" or "}". If that is so, then the text is safe for eval.
+
+            if (
+                rx_one.test(
+                    text
+                        .replace(rx_two, "@")
+                        .replace(rx_three, "]")
+                        .replace(rx_four, "")
+                )
+            ) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The "{" operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval("(" + text + ")");
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return (typeof reviver === "function")
+                    ? walk({"": j}, "")
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError("JSON.parse");
+        };
+    }
+}());
+function saveCss () {
+
 
 	// Copyright 2012 Adobe Systems Incorporated.  All Rights reserved.
 
@@ -2548,6 +2860,7 @@ function saveCss () {
 	// calling this function.  This really slows down the script, unfortunately.
 	cssToClip.extractShapeGeometry = function()
 	{
+		alert('extracting Shape Geometry');
 		// We accept a shape as conforming if the coords are within "magnitude"
 		// of the overall size.
 		function near(a,b, magnitude)
@@ -2573,8 +2886,10 @@ function saveCss () {
 		// See problem 1, http://www.graphics.stanford.edu/courses/cs248-98-fall/Final/q1.html
 		const kEllipseDist = 4*(Math.sqrt(2) - 1)/3;
 
-		if (app.activeDocument.pathItems.length == 0)
+		if (app.activeDocument.pathItems.length == 0) {
+			alert('no path');
 			return null;	// No path
+		};
 		
 		// Grab the path name from the layer name (it's auto-generated)
 		var i, pathName = localize("$$$/ShapeLayerPathName=^0 Shape Path");
@@ -2602,6 +2917,11 @@ function saveCss () {
 				}
 				// Return the X,Y radius
 				return [pts[1].anchor[0] - pts[0].anchor[0], pts[1].anchor[1] - pts[0].anchor[1], "ellipse"];
+				
+			}
+			else if (subPath.closed && (subPath.pathPoints.length == 6))
+			{
+				alert('UH OH cant get border radius');
 			}
 			else if (subPath.closed && (subPath.pathPoints.length == 8))	// RoundRect?
 			{
@@ -2625,17 +2945,21 @@ function saveCss () {
 					if (io == 0) 
 					{
 						if( ! near( arm( pts[i], hv, io ) - pts[i].anchor[hv], 
-									   (pts[prev(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) )
-						return null;
+									   (pts[prev(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) ) {
+							return null;
+						}
+						
 					}
 					else
 					{
 						if( ! near( arm( pts[i], hv, io ) - pts[i].anchor[hv], 
-									   (pts[next(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) )
-						return null;
+									   (pts[next(i)].anchor[hv] - pts[i].anchor[hv])*kEllipseDist, 10 ) ) {
+							return null;
+						}
 					}
 				}
 				return [pts[2].anchor[0] - pts[1].anchor[0], pts[2].anchor[1] - pts[1].anchor[1], "round rect"];
+
 			}
 		}
 	}
@@ -2836,6 +3160,7 @@ function saveCss () {
 	// Only called for shape (vector) layers.
 	cssToClip.getShapeLayerCSS = function( boundsInfo )
 	{
+		alert('getting Shape Layer CSS');
 		// If we have AGM stroke style info, generate that.
 		var agmDesc = this.getLayerAttr( "AGMStrokeStyleInfo" );
 		boundsInfo.borderWidth = 0;
@@ -2885,6 +3210,7 @@ function saveCss () {
 		// We assume path coordinates are in pixels, they're not stored as UnitValues in the DOM.
 		if (shapeGeom)
 		{
+			alert(shapeGeom);
 			// In CSS, the borderRadius needs to be added to the borderWidth, otherwise ovals
 			// turn into rounded rects.
 			if (shapeGeom[2] == "ellipse")
@@ -2912,6 +3238,10 @@ function saveCss () {
 			}
 			else
 			{
+				// var name = this.getLayerAttr( "name" );
+				// this.addText( 'background-image: url("'+name+'.png");');
+
+
 				var fillOpacity = this.getLayerAttr("fillOpacity") / 255.0;
 				if (fillOpacity < 1.0)
 					this.addRGBAColor( "background-color", fillOpacity, this.getLayerAttr( "adjustment" ));
@@ -3064,18 +3394,21 @@ function saveCss () {
 		else
 		{
 			// If the layer has a suffix, assume Generator-style naming conventions
-			var docSuffix = app.activeDocument.name.search(/([.]psd)$/i);
-			var docFolder = (docSuffix < 0) ? app.activeDocument.name
-													  : app.activeDocument.name.slice(0, docSuffix);
-			docFolder += "-assets/";	// The "-assets" is not localized.
-			
-			// Weed out any Generator parameters, if present.
-			var m = name.match(/(?:[\dx%? ])*([^.+,\n\r]+)([.]\w+)+$/);
-			if (m) {
-				name = m[1]+m[2];
-			}
 
-			this.addText( 'background-image: url("' + docFolder + name + '");');
+			this.addStyleLine( 'background-image: url("$name$.png");');
+
+			// var docSuffix = app.activeDocument.name.search(/([.]psd)$/i);
+			// var docFolder = (docSuffix < 0) ? app.activeDocument.name
+			// 										  : app.activeDocument.name.slice(0, docSuffix);
+			// docFolder += "-assets/";	// The "-assets" is not localized.
+			
+			// // Weed out any Generator parameters, if present.
+			// var m = name.match(/(?:[\dx%? ])*([^.+,\n\r]+)([.]\w+)+$/);
+			// if (m) {
+			// 	name = m[1]+m[2];
+			// }
+
+			// this.addText( 'background-image: url("' + docFolder + name + '");');
 		}
 		var fillOpacity = this.getLayerAttr("fillOpacity")/255.0;
 		this.addOpacity( this.getLayerAttr("opacity") * fillOpacity );
