@@ -1,6 +1,5 @@
 
 var React = require('react');
-var ReactButton = require('./ReactButton');
 
 var csInterface = new window.CSInterface();
 
@@ -12,15 +11,6 @@ var htmlbot = window.cep.fs.readFile(htmlBotPath).data;
 
 var MainPanel = React.createClass({
 
-	addDocument: function() {
-		console.log(1);
-		csInterface.evalScript("addDocument()");
-		csInterface.addEventListener('test', function(event) {
-			console.log(event.data);
-		});
-
-	},
-
 	exportLayer: function () {
 		getDestination(function(destination){
 			csInterface.evalScript("exportLayer('" + destination + "', 'selectedLayer', 'undefined')");
@@ -30,27 +20,22 @@ var MainPanel = React.createClass({
 	},
 
 	exportWebsite: function() {
-		var cssStore = [];
-		var i=0;
-		var cssdata = "";
+		var cssdata = "div {white-space: pre-wrap;}\n";
 		var body = '';
 		var csspath = '';
 		var htmlFinalPath = '';
 		var text = '';
 
 		getDestination(function(destination){
-			var path = destination;
 			
-			csspath = path + '/stylesheet.css';
-			htmlFinalPath = path + '/index.html';
+			csspath = destination + '/stylesheet.css';
+			htmlFinalPath = destination + '/index.html';
 
 			csInterface.addEventListener('outputText', function(event) {
 				text = event.data;
 			});
 
 			csInterface.addEventListener('outputLayerCSS', function(event) {
-				cssStore[i] = event.data;
-				i++
 
 				cssdata = cssdata + '\n' +event.data;
 				window.cep.fs.writeFile(csspath, cssdata);
@@ -69,7 +54,6 @@ var MainPanel = React.createClass({
 
 			});
 
-			alert('React Panel about to run Iterate Script');
 			csInterface.evalScript("iterate(activeDocument)");
 
 		});
@@ -80,13 +64,11 @@ var MainPanel = React.createClass({
 		return (
 			<div>
 				<h1>React Extension</h1>
-				<button onClick={this.addDocument}>New Document</button>
 				<br/><br/>				
 				<button onClick={this.exportLayer}>Export Layer as PNG</button>
 				<br/><br/>
 				<button onClick={this.exportWebsite}>Export a Website</button>
 				<br/><br/>
-				<ReactButton/>
 			</div>
 		);
 	}

@@ -1,17 +1,7 @@
-// function iterate () {
-// 	var len = activeDocument.layers.length;
-// 	for (var i = 0; i < len; i++) {
-// 		var layer = activeDocument.layers[i];
-// 		activeDocument.activeLayer = layer;
-// 		saveCss();
-// 	}
-// };
 
 
 function iterate (lSet) {
 
-
-	alert('Iterate Script reads global destination: ' + globalDestinationVar);
 	var destination = globalDestinationVar;
 
 	
@@ -19,8 +9,6 @@ function iterate (lSet) {
 	var nameArray = [];
 	var dupNameObj = {};
 	var layerName;
-
-	alert('iterate start');
 
 
 	(function recurse (lSet) {
@@ -33,11 +21,7 @@ function iterate (lSet) {
 			if (!dupNameObj[layerName]) {
 				dupNameObj[layerName] = 1;
 			}
-			// else if (dupNameObj[layerName] === 1) {
-			// 	activeDocument.activeLayer.name = layerName + '-1';
-			// 	dupNameObj[layerName] = 2;
 
-			// } 
 			else if (dupNameObj[layerName] > 0) {
 				activeDocument.activeLayer.name = layerName + '-' + dupNameObj[layerName];
 				dupNameObj[layerName] = dupNameObj[layerName] + 1;
@@ -49,7 +33,6 @@ function iterate (lSet) {
 			if(activeDocument.activeLayer.typename == 'LayerSet'){
 				
 				if(layerName.indexOf('.png') !== -1) {
-					alert('exporting layerSET '+layerName+ ' to PNG');
 
 					smartirize();
 
@@ -64,7 +47,6 @@ function iterate (lSet) {
 			else {
 
 				if (layerName.indexOf('.png') !== -1) {
-					alert('exporting layer '+layerName+ ' to PNG');
 					smartirize();
 					nameArray.push(layerName);
 
@@ -88,9 +70,19 @@ function iterate (lSet) {
 		}
 	})(docCopy);
 
-	alert('iterate complete');
+	alert('HTML & CSS Files generated, exporting png files.');
 
 	exportLayer(destination, 'arrayOfLayers', JSON.stringify(nameArray));
+
+	var idCls = charIDToTypeID( "Cls " );
+    var desc394 = new ActionDescriptor();
+    var idDocI = charIDToTypeID( "DocI" );
+    desc394.putInteger( idDocI, 561 );
+    var idforceNotify = stringIDToTypeID( "forceNotify" );
+    desc394.putBoolean( idforceNotify, true );
+	executeAction( idCls, desc394, DialogModes.NO );
+
+	alert('tried to close');
 	
 };
 

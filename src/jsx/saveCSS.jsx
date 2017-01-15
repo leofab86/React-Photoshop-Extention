@@ -1195,7 +1195,6 @@ function saveCss () {
 	// calling this function.  This really slows down the script, unfortunately.
 	cssToClip.extractShapeGeometry = function()
 	{
-		alert('extracting Shape Geometry');
 		// We accept a shape as conforming if the coords are within "magnitude"
 		// of the overall size.
 		function near(a,b, magnitude)
@@ -1222,7 +1221,6 @@ function saveCss () {
 		const kEllipseDist = 4*(Math.sqrt(2) - 1)/3;
 
 		if (app.activeDocument.pathItems.length == 0) {
-			alert('no path');
 			return null;	// No path
 		};
 		
@@ -1495,7 +1493,6 @@ function saveCss () {
 	// Only called for shape (vector) layers.
 	cssToClip.getShapeLayerCSS = function( boundsInfo )
 	{
-		alert('getting Shape Layer CSS');
 		// If we have AGM stroke style info, generate that.
 		var agmDesc = this.getLayerAttr( "AGMStrokeStyleInfo" );
 		boundsInfo.borderWidth = 0;
@@ -1545,7 +1542,6 @@ function saveCss () {
 		// We assume path coordinates are in pixels, they're not stored as UnitValues in the DOM.
 		if (shapeGeom)
 		{
-			alert(shapeGeom);
 			// In CSS, the borderRadius needs to be added to the borderWidth, otherwise ovals
 			// turn into rounded rects.
 			if (shapeGeom[2] == "ellipse")

@@ -7,7 +7,7 @@ window.React.ApplicationPath = csInterface.getSystemPath(SystemPath.APPLICATION)
 console.log(window);
 
 function loadJSX (fileName) {
-	var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/src/jsx/";
+	var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/dist/jsx/";
 	csInterface.evalScript('$.evalFile("' + extensionRoot + fileName + '")');
 };
 

@@ -1,0 +1,5 @@
+{
+  "name" : "reactPkgName",
+  "main" : "main.js",
+  "generator-core-version": "~3"
+}
